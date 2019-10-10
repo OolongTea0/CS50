@@ -1,0 +1,408 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Pomodoro
+{% endblock %}
+
+{% block main %}
+  <style>
+
+    #clock {
+      font-size: 800%;
+    }
+
+    #task {
+      padding: 16px;
+    }
+
+    #set {
+      position: absolute;
+      right: 0;
+      margin-right: 16px;
+    }
+
+    #main {
+      height: 75vh;
+      position: relative;
+    }
+
+    .cross {
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding-right: 4px;
+    }
+
+    ol li:hover {
+      background-color: #ddd;
+    }
+
+    ol li {
+      position: relative;
+      text-align: left;
+      padding-left: 8px;
+      margin: 12px;
+      border-bottom: 1px solid grey;
+    }
+
+    ol {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .complete {
+      text-decoration: line-through;
+    }
+
+    .bot {
+      position: relative;
+      bottom: -33%;
+    }
+
+    .tally {
+      position: relative;
+      bottom: -27%;
+    }
+
+    .but {
+      position: relative;
+      bottom: -20%;
+    }
+
+    .time {
+      position: relative;
+      bottom: -10%;
+      border: 2px black solid;
+    }
+
+    .top {
+      position: relative;
+      bottom: 0%;
+    }
+
+  </style>
+
+    <!-- Main content -->
+    <div class="col-sm" id="main">
+
+      <div class="top">
+        <h4 id="task"> Add a task to your ToDo list </h4>
+      </div>
+
+      <div class="time">
+        <h1 id="clock"></h1>
+      </div>
+
+
+      <div class="but">
+        <button class="btn btn-warning btn-lg" onclick="pause()">Pause</button>
+        <button class="btn btn-success btn-lg" onclick="start()">Start</button>
+        <button class="btn btn-outline-dark btn-lg" onclick="reset()">Reset</button>
+      </div>
+
+
+      <div class="tally">
+        <h5>Pomodoro Tracker</h5>
+        <h6 id="track"></h6>
+      </div>
+
+      <div class="bot">
+        <!-- Opens TODO list -->
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#TODO">TODO</button>
+
+        <!-- "Setttings" trigger modal -->
+        <button type="button" id="set" class="btn btn-secondary btn-lg" data-toggle="modal" data-target="#settings" onclick="option()">
+          &#9881;
+        </button>
+      </div>
+
+      <!-- TODO List modal-->
+      <div class="modal fade" id="TODO" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">To-Do List</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+                    <div class="form-group">
+          <input type="text" class="form-control" id="item" maxlength="25">
+          <button type="button" class="btn btn-primary" onclick="add()">Add to List</button>
+          </div>
+
+            <!-- Unordered list -->
+            <ol id="list">
+
+            </ol>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Modal to reconfigure tmers -->
+      <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <div class="form-control">
+                Short break duration: <input type="number" id="sb" min="0" max="10">
+              </div>
+
+              <div class="form-control">
+                Long break duration: <input type="number" id="lb" min="0" max = "30">
+              </div>
+
+              <div class="form-control">
+                Pomodoro duration: <input type="number" id="pom" min="15" max = "40">
+              </div>
+
+              <div class="form-control">
+                Max tally: <input type="number" id="tal" min="1" max="40">
+              </div>
+
+              <div class="form-control">
+                Volume: <input type="number" id="vol" min="0" max="100">
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" onclick="save()" data-dismiss="modal">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Rest Modal after pomodoro timer is done -->
+      <div class="modal fade" id="break" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Time for a break!</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              This pomodoro session is over! You have earned a break!
+            </div>
+            <div class="modal-body">
+              <button class="btn btn-primary" onclick="restTime(sBreak)" data-dismiss="modal">Short break</button>
+            </div>
+              <div class="modal-body">
+            <button class="btn btn-primary" onclick="restTime(lBreak)" data-dismiss="modal">Long break</button>
+            </div>
+              <div class="modal-body">
+                <button class="btn btn-secondary" onclick="reset()" data-dismiss="modal">Skip break</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+
+    <!-- Audio elements for notification -->
+  <audio id="sound">
+  <source src="/static/alert.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+  </audio>
+
+    <script>
+        // Default values, current -> time (s), tracker -> pomodoro tally, rest -> false
+        var current = 25 * 60, tracker = 0, rest = false; tal = 10; vol = 50;
+
+        // Default values for other timers in minutes
+        var sBreak = 5, lBreak = 15, pom = 25;
+
+        // Notification (incomplete) //////
+        var myNotification = new Notification("test");
+
+
+
+        // TODO List
+        // https://www.w3schools.com/howto/howto_js_todolist.asp
+
+        //stores a list of elements that have classname "close" into a ariable
+        var close = document.getElementsByClassName("close");
+        var li = document.getElementsByTagName("LI");
+
+        function add() {
+          var node =  document.createElement("LI");
+          var textnode = document.getElementById("item").value;
+          var text = document.createTextNode(textnode);
+
+          if (textnode === ""){
+            alert("Input cannot be blank!");
+          } else {
+
+            node.appendChild(text); // innerHTML works but there are security flaws to it
+
+            document.getElementById("list").appendChild(node);
+            document.getElementById("item").value = ""
+
+            // Creates close icon
+            var x = document.createElement("span");
+            var text = document.createTextNode("\u00D7");
+            x.className = "cross close";
+            x.appendChild(text);
+            node.appendChild(x);
+
+            // click close remove the element
+            for (var i = 0; i < close.length; i++) {
+              close[i].onclick = function() {
+                var div = this.parentElement; //select "LI" element
+                div.style.display = "none";
+              }
+            }
+
+            // click to cross out
+            for (var i = 0; i < li.length; i++) {
+              li[i].onclick = function() {
+                this.classList.toggle("complete");
+                thing();
+              }
+            }
+
+            }
+            thing();
+        }
+
+        // Display task
+        function thing() {
+          var str;
+          for (var i = 0; i < li.length; i++) {
+            if (li[i].classList.contains("complete") == false) {
+              str = li[i].textContent;
+              str = str.slice(0, str.length - 1);
+              break;
+            } else {
+            str = "No tasks left";
+            }
+          }
+            var task = document.createTextNode(str);
+            document.getElementById("task").innerHTML = "";
+            document.getElementById("task").appendChild(task);
+        }
+
+        // Display timer
+        display();
+
+        var timer_on = 0; //Boolean used to prevent setInterval from getting lost
+        var pomo
+
+
+        // Starts timer
+        function start(){
+            if (timer_on == 0) {
+                pomo = setInterval(update,1000);
+                timer_on = 1;
+            }
+        }
+
+        // Resets timer
+        function reset(){
+            current = pom * 60;
+            rest = true;
+            pause();
+            display();
+        }
+
+        // Pauses timer
+        function pause(){
+            clearInterval(pomo);
+            if (current > 0) {
+                timer_on = 0;
+            }
+        }
+
+        // Updates values, function is done once every 1000 ms
+        function update() {
+            current--;
+            if (current == 0){
+                clearInterval(pomo);
+                playAudio();
+
+                //https://getbootstrap.com/docs/4.0/components/modal/#usage
+                $('#break').modal()
+                if (rest == false) {
+                tracker++;
+                }
+            }
+            display();
+        }
+
+
+        // Display: shows the current timer on screen
+        function display() {
+            var m = t_check(Math.floor(current/60));
+            var s = t_check(current%60);
+            document.getElementById("clock").innerHTML = m + ":" + s;
+            document.getElementById("track").innerHTML = tracker + "/" + tal;
+        }
+
+        // Adds a 0 infront of m or s if they are < 0
+        function t_check(i) {
+            if (i < 10) {
+                i = "0" + i;
+            }
+            return i;
+        }
+
+        // Break time (NOT SURE HOW TO IMPLEMENT THESE FUNCTIONS)
+        function restTime(x){
+        current = x * 60;
+        rest = true;
+        pause();
+        display()
+        }
+
+        // Settting values for short, long and pomo durations
+        function option() {
+          document.getElementById("sb").value = sBreak;
+          document.getElementById("lb").value = lBreak;
+          document.getElementById("pom").value = pom;
+          document.getElementById("tal").value = tal;
+          document.getElementById("vol").value = vol;
+        }
+
+        // Save new values from options menu
+        function save() {
+          sBreak = document.getElementById("sb").value;
+          lBreak = document.getElementById("lb").value;
+          pom = document.getElementById("pom").value;
+          tal = document.getElementById("tal").value
+          vol = document.getElementById("vol").value
+
+          document.getElementById("track").innerHTML = tracker + "/" + tal;
+        }
+
+
+        // Sound
+        var x = document.getElementById("sound");
+
+        function playAudio() {
+          x.volume = vol/100;
+          x.play();
+        }
+
+    </script>
+
+{% endblock %}

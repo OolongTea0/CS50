@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+
+    <h2>Portfolio</h2>
+    <table class = "table table-sm">
+        <thread>
+            <tr>
+                <th>Symbol</th>
+                <th>Stocks</th>
+                <th>Price</th>
+                <th>Total Value</th>
+            </tr>
+        </thread>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{row["symbol"]}}</td>
+                    <td>{{row["shares"]}}</td>
+                    <td>{{"$%.2f"|format(row["price"])}}</td>
+                    <td>{{"$%.2f"|format(row["total"])}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+    <p><b>Cash Balance</b>:    {{"$%.2f"|format(cash)}}</p>
+    <p><b>Grand Total</b>:    {{"$%.2f"|format(grand)}}</p>
+
+{% endblock %}

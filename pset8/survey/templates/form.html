@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+    <!-- http://getbootstrap.com/docs/4.1/content/typography/ -->
+    <h1 class="mb-3">Three Houses Member Survey</h1>
+
+    <!-- http://getbootstrap.com/docs/4.1/components/forms/ -->
+    <form action="/form" method="post">
+
+        <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-2 col-form-label">Name of member:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" autofocus id="inputEmail3" placeholder="Name" autocomplete="off" name="name">
+            </div>
+        </div>
+
+        <fieldset class="form-group">
+            <div class="row">
+                <legend class="col-form-label col-sm-2 pt-0">House:</legend>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="house" id="gridRadios1" value="Black Eagles" >
+                        <label class="form-check-label" for="gridRadios1">
+                            Black Eagles
+                        </label>
+                        </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="house" id="gridRadios2" value="Blue Lions">
+                        <label class="form-check-label" for="gridRadios2">
+                            Blue Lions
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="house" id="gridRadios3" value="Golden Deers">
+                        <label class="form-check-label" for="gridRadios3">
+                            Golden Deer
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        <br>
+
+        <fieldset class="form-group">
+            <div class="row">
+            <legend class="col-form-label col-sm-2 pt-0">Main Skill:</legend>
+                <div class="col-sm-10">
+                    <select name="skill">
+                        <option disabled selected value="">Skill</option>
+                        <option value="Sword">Sword</option>
+                        <option value="Lance">Lance</option>
+                        <option value="Axe">Axe</option>
+                        <option value="Bow">Bow</option>
+                        <option value="Brawling">Brawling</option>
+                        <option value="Reason">Reason</option>
+                        <option value="Faith">Faith</option>
+                    </select>
+                </div>
+            </div>
+
+        <!-- http://getbootstrap.com/docs/4.1/components/buttons/ -->
+        <br>
+        <button class="btn btn-primary" type="submit">Submit</button>
+
+
+    </form>
+
+    <script>
+
+        document.querySelector('form').onsubmit = function() {
+            if (!document.querySelector('input').value) {
+                alert('You must provide a name!');
+                return false;
+            }
+            else {
+                var house = document.getElementsByName('house');
+                for (i = 0; i < house.length; i++) {
+                    if (house[i].checked) {
+
+                        if (!document.querySelector('select').value) {
+                            alert('You must select a skill!');
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+                alert('You must select a house!')
+                return false
+            }
+        }
+
+    </script>
+
+{% endblock %}

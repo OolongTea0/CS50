@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+
+    <h2>History</h2>
+    <table class="table table-sm">
+        <thread>
+            <tr>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Change in Shares</th>
+                <th>Time</th>
+            </tr>
+        </thread>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{row["symbol"]}}</td>
+                    <td>{{row["price"]}}</td>
+                    <td>{{row["shares"]}}</td>
+                    <td>{{row["date"]}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+
+{% endblock %}

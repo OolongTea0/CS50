@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+    <h1>Students</h1>
+    <table class = "table table-sm table-hover">
+        <thread>
+            <tr>
+                <th>Name</th>
+                <th>House</th>
+                <th>Skill</th>
+            </tr>
+        </thread>
+        <tbody>
+            {% for student in place %}
+                <tr>
+                    <td>{{student[0]}}</td>
+                    <td>{{student[1]}}</td>
+                    <td>{{student[2]}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
